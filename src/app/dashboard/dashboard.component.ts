@@ -13,6 +13,8 @@ export class DashboardComponent implements OnInit {
 
   constructor(private marketService: MarketServiceService) {this.marketService.sendMessage() }
 
+  price:number = this.marketService.price;
+
   ngOnInit() {
 
   }

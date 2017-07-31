@@ -8,6 +8,8 @@ export class MarketServiceService {
 
   constructor(private socket: Socket) { this.socket.on("m", this.onSocketMessage)}
 
+  price:number;
+
   sendMessage(){
     console.log("Inside sendMessage");
     this.socket.emit('SubAdd', {subs: this.subscription});
@@ -19,10 +21,13 @@ export class MarketServiceService {
 
   onSocketMessage(message: String){
     var messageType:String = message.substring(0, message.indexOf("~"));
-    var res = {};
+    var res;
+    //console.log(messageType)
     if (messageType === '5') {
-      //res = this.CCCCURRENTunpack(message);
-      console.log(message);
+      res = currentUnpack(message);
+      if(res.PRICE !=null)
+        this.price = res.PRICE;
+      console.log(res);
       //updateQuote(res);
     }						
   }
@@ -43,37 +48,36 @@ export class MarketServiceService {
 // 	displayQuote(quote[pair]);
 // }
 
-  CCCCURRENTunpack (value:String): any {
-    var valuesArray = value.split("~");
-    var valuesArrayLenght = valuesArray.length;
-    var mask = valuesArray[valuesArrayLenght-1];
-    var maskInt = parseInt(mask,16);
-    var unpackedCurrent = {};
-    var currentField = 0;
-    for(var property in this.CCCCURRENTFIELDS)
-    {
-        if(this.CCCCURRENTFIELDS[property] === 0)
-        {
-            unpackedCurrent[property] = valuesArray[currentField];
-            currentField++;
+
+}
+
+function currentUnpack(value:String): object{
+  var valuesArray = value.split("~");
+  var valuesArrayLenght = valuesArray.length;
+  var mask = valuesArray[valuesArrayLenght-1];
+  var maskInt = parseInt(mask,16);
+  var unpackedCurrent = {};
+  var currentField = 0;
+    for(var property in CCCCURRENTFIELDS){
+      if(CCCCURRENTFIELDS[property] === 0){
+        unpackedCurrent[property] = valuesArray[currentField];
+        currentField++;
+      }
+      else if(maskInt&CCCCURRENTFIELDS[property]){
+    //i know this is a hack, for cccagg, future code please don't hate me:(, i did this to avoid
+    //subscribing to trades as well in order to show the last market
+        if(property === 'LASTMARKET'){
+          unpackedCurrent[property] = valuesArray[currentField];
+        }else{
+          unpackedCurrent[property] = parseFloat(valuesArray[currentField]);
         }
-        else if(maskInt&this.CCCCURRENTFIELDS[property])
-        {
-			//i know this is a hack, for cccagg, future code please don't hate me:(, i did this to avoid
-			//subscribing to trades as well in order to show the last market
-         	if(property === 'LASTMARKET'){
-                unpackedCurrent[property] = valuesArray[currentField];
-            }else{
-                 unpackedCurrent[property] = parseFloat(valuesArray[currentField]);
-            }
-            currentField++;
-        }
+        currentField++;
+      }
     }
-    
     return unpackedCurrent;
 }
 
-CCCCURRENTFIELDS={
+ var CCCCURRENTFIELDS={
     'TYPE'            : 0x0       // hex for binary 0, it is a special case of fields that are always there
   , 'MARKET'          : 0x0       // hex for binary 0, it is a special case of fields that are always there
   , 'FROMSYMBOL'      : 0x0       // hex for binary 0, it is a special case of fields that are always there
@@ -98,6 +102,4 @@ CCCCURRENTFIELDS={
   , 'HIGH24HOUR'      : 0x10000   // hex for binary 10000000000000000
   , 'LOW24HOUR'       : 0x20000   // hex for binary 100000000000000000
   , 'LASTMARKET'      : 0x40000   // hex for binary 1000000000000000000, this is a special case and will only appear on CCCAGG messages
-}
-
 }
