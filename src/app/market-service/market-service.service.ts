@@ -10,9 +10,22 @@ import 'rxjs/Rx';
 @Injectable()
 export class MarketServiceService {
 
+  //Api de donde se sacan los datos cryptocompare.com
+
   mySub = new Subject();
 
-  subscription = ['5~CCCAGG~BTC~USD','5~CCCAGG~ETH~USD'];
+  subscription = [
+    '5~CCCAGG~BTC~USD',
+    '5~CCCAGG~ETH~USD',
+    '5~CCCAGG~XRP~USD',
+    '5~CCCAGG~LTC~USD',
+    '5~CCCAGG~XEM~USD',
+    '5~CCCAGG~DASH~USD',
+    '5~CCCAGG~ETC~USD',
+    '5~CCCAGG~MIOTA~USD',
+    '5~CCCAGG~XMR~USD',
+    '5~CCCAGG~STRAT~USD',
+  ];
 
   mySubscription : Subscription;
 
@@ -72,34 +85,12 @@ export class MarketServiceService {
     //console.log(messageType)
     if (messageType === '5') {
       res = currentUnpack(message);
-      if(res.PRICE !=null && res.FROMSYMBOL=='BTC'){
-        //console.log("Not null");
-        this.mySub.next(res.PRICE);
-        //this.price = res.PRICE;
-        //console.log(this.price);
+      if(res!=null){
+        this.mySub.next([res.FROMSYMBOL, res.PRICE]);
+
       }
-      //console.log(res);
-      //updateQuote(res);
     }						
   }
-
-//   updateQuote(result) {
-
-// 	var keys = Object.keys(result);
-// 	var pair = result.FROMSYMBOL + result.TOSYMBOL;
-// 	if (!quote.hasOwnProperty(pair)) {
-// 		quote[pair] = {}
-// 		createDom(pair);
-// 	}
-// 	for (var i = 0; i <keys.length; ++i) {
-// 		quote[pair][keys[i]] = result[keys[i]];
-// 	}
-// 	quote[pair]["CHANGE24H"] = quote[pair]["PRICE"] - quote[pair]["OPEN24HOUR"];
-// 	quote[pair]["CHANGEPCT24H"] = quote[pair]["CHANGE24H"]/quote[pair]["OPEN24HOUR"] * 100;
-// 	displayQuote(quote[pair]);
-// }
-
-
 }
 
 function currentUnpack(value:String): object{
@@ -115,8 +106,6 @@ function currentUnpack(value:String): object{
         currentField++;
       }
       else if(maskInt&CCCCURRENTFIELDS[property]){
-    //i know this is a hack, for cccagg, future code please don't hate me:(, i did this to avoid
-    //subscribing to trades as well in order to show the last market
         if(property === 'LASTMARKET'){
           unpackedCurrent[property] = valuesArray[currentField];
         }else{
