@@ -1,33 +1,84 @@
-import { Injectable } from '@angular/core';
+import { Injectable} from '@angular/core';
 import { Socket } from 'ng-socket-io';
+
+import { Observable } from 'rxjs/Observable';
+import { Observer } from 'rxjs/Observer';
+import { Subscription } from 'rxjs/Subscription';
+import { Subject } from 'rxjs/Subject';
+import 'rxjs/Rx';
 
 @Injectable()
 export class MarketServiceService {
 
+  mySub = new Subject();
+
   subscription = ['5~CCCAGG~BTC~USD','5~CCCAGG~ETH~USD'];
 
-  constructor(private socket: Socket) { this.socket.on("m", this.onSocketMessage)}
+  mySubscription : Subscription;
+
+  constructor(private socket: Socket) {}
+
+  initConnection(){
+    console.log("Inside initConnection");
+    this.socket.connect();
+    console.log("Inside initConnection socket.connect end");
+    this.socket.on("m", this.onSocketMessage);
+    console.log("Inside initConnection socket.on end");
+  }
+
+  getSocket(){
+    return this.socket;
+  }
 
   price:number;
+
+  // method(){
+  // const myObservable = Observable.create((observer: Observer<string>)=>{
+  //   setTimeout(() => {
+  //       observer.next(/*anyData you want*/ 'next package'); //emits a normal data package
+  //   }, 2000);
+  //   setTimeout(() => {
+  //       observer.error(/*anyData you want*/ 'error package'); //emits a error data package
+  //   }, 4000);
+  //   setTimeout(() => {
+  //       observer.complete(); //emits a complete data package
+  //   }, 5000);
+  //   setTimeout(() => {
+  //       observer.next(/*anyData you want*/ 'next package'); //won't execute, because it happens after complete
+  //   }, 6000);
+  // });
+
+  // this.mySubscription = myObservable.subscribe(
+  //   (data: string)=>{console.log(data)}, //for next
+  //   (data: string)=>{console.log(data)}, //for error
+  //   ()=>{}); //for complete
+
+  // }
+
 
   sendMessage(){
     console.log("Inside sendMessage");
     this.socket.emit('SubAdd', {subs: this.subscription});
+    console.log("Inside sendMessage emit End");
   }
 
   getMessage(){
     return this.socket.fromEvent("")
   }
 
-  onSocketMessage(message: String){
+  onSocketMessage = (message: String) =>{
     var messageType:String = message.substring(0, message.indexOf("~"));
     var res;
     //console.log(messageType)
     if (messageType === '5') {
       res = currentUnpack(message);
-      if(res.PRICE !=null)
-        this.price = res.PRICE;
-      console.log(res);
+      if(res.PRICE !=null && res.FROMSYMBOL=='BTC'){
+        //console.log("Not null");
+        this.mySub.next(res.PRICE);
+        //this.price = res.PRICE;
+        //console.log(this.price);
+      }
+      //console.log(res);
       //updateQuote(res);
     }						
   }

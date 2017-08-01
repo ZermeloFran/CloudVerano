@@ -1,6 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import {Routes, RouterModule} from '@angular/router';
+import { HttpModule } from '@angular/http';
 
 import {SocketIoModule, SocketIoConfig} from 'ng-socket-io';
 
@@ -8,6 +9,8 @@ import { AppComponent } from './app.component';
 import { SignupComponent } from './signup/signup.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { NavigationComponent } from './navigation/navigation.component';
+import { MarketServiceService } from './market-service/market-service.service';
+import { ConnectService } from './http-service/connect.service';
 
 const appRoutes : Routes = [
   {path: 'signup', component: SignupComponent},
@@ -26,9 +29,10 @@ const config: SocketIoConfig = {url: 'https://streamer.cryptocompare.com', optio
   imports: [
     BrowserModule,
     RouterModule.forRoot(appRoutes),
-    SocketIoModule.forRoot(config)
+    SocketIoModule.forRoot(config),
+    HttpModule
   ],
-  providers: [],
+  providers: [MarketServiceService, ConnectService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
