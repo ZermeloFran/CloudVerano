@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { NgForm } from '@angular/forms';
 
 import { ConnectService } from '../http-service/connect.service';
 
@@ -12,6 +13,10 @@ export class SignupComponent implements OnInit {
   constructor(private http: ConnectService) { }
 
   ngOnInit() {
+  }
+
+  onSubmit(form : NgForm){
+
   }
 
 }
