@@ -22,7 +22,7 @@ export class MarketServiceService {
     '5~CCCAGG~XEM~USD',
     '5~CCCAGG~DASH~USD',
     '5~CCCAGG~ETC~USD',
-    '5~CCCAGG~MIOTA~USD',
+    '5~CCCAGG~DOGE~USD',
     '5~CCCAGG~XMR~USD',
     '5~CCCAGG~STRAT~USD',
   ];
@@ -86,7 +86,8 @@ export class MarketServiceService {
     if (messageType === '5') {
       res = currentUnpack(message);
       if(res!=null){
-        this.mySub.next([res.FROMSYMBOL, res.PRICE]);
+        this.mySub.next([res.FROMSYMBOL, res.PRICE, res.AVG, 
+        res.HIGH24HOUR, res.LOW24HOUR, res.LASTMARKET]);
 
       }
     }						
